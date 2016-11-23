@@ -19,6 +19,7 @@ class CreateExpensesTable extends Migration
             $table->float('value');
             $table->string('location')->nullable();
             $table->date('date');
+            $table->integer('user_id')->unsigned();
             $table->timestamps();
         });
     }
