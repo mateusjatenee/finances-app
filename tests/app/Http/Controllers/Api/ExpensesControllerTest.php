@@ -1,5 +1,6 @@
 <?php
 
+use App\Expense;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -13,7 +14,7 @@ class ExpensesControllerTest extends TestCase
     {
         $this->disableExceptionHandling();
 
-        $user = factory(User::class);
+        $user = factory(User::class)->create();
 
         $expenses = factory(Expense::class, 2)->make();
 
@@ -25,6 +26,7 @@ class ExpensesControllerTest extends TestCase
 
         foreach ($expenses as $expense) {
             $this->seeJsonSubset([
+                'title' => $expense->title,
                 'value' => (float) $expense->value,
                 'location' => $expense->location,
                 'date' => $expense->date->format('Y-m-d'),
@@ -38,7 +40,7 @@ class ExpensesControllerTest extends TestCase
     {
         $this->disableExceptionHandling();
 
-        $user = factory(User::class);
+        $user = factory(User::class)->create();
 
         $expenses = factory(Expense::class, 2)->make();
 
@@ -62,6 +64,7 @@ class ExpensesControllerTest extends TestCase
 
         foreach ($expenses as $expense) {
             $this->seeJsonSubset([
+                'title' => $expense->title,
                 'value' => (float) $expense->value,
                 'location' => $expense->location,
                 'date' => $expense->date->format('Y-m-d'),
@@ -71,6 +74,7 @@ class ExpensesControllerTest extends TestCase
 
         foreach ($should_not_be_seen_expenses as $expense) {
             $this->notSeeJson([
+                'title' => $expense->title,
                 'value' => (float) $expense->value,
                 'location' => $expense->location,
                 'date' => $expense->date->format('Y-m-d'),
