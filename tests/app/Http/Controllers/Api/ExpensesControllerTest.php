@@ -25,7 +25,7 @@ class ExpensesControllerTest extends TestCase
             ->get(route('api::expenses.index'));
 
         foreach ($expenses as $expense) {
-            $this->seeJsonSubset([
+            $this->seeJson([
                 'title' => $expense->title,
                 'value' => (float) $expense->value,
                 'location' => $expense->location,
@@ -36,6 +36,7 @@ class ExpensesControllerTest extends TestCase
 
     }
 
+    /** @test */
     public function it_lists_a_user_expenses_at_the_given_interval()
     {
         $this->disableExceptionHandling();
@@ -55,6 +56,7 @@ class ExpensesControllerTest extends TestCase
         $should_not_be_seen_expenses = [$third_expense, $fourth_expense];
 
         $user->expenses()->saveMany($expenses);
+        $user->expenses()->saveMany($should_not_be_seen_expenses);
 
         $this
             ->actingAs($user)
@@ -63,7 +65,7 @@ class ExpensesControllerTest extends TestCase
             ]));
 
         foreach ($expenses as $expense) {
-            $this->seeJsonSubset([
+            $this->seeJson([
                 'title' => $expense->title,
                 'value' => (float) $expense->value,
                 'location' => $expense->location,
@@ -73,7 +75,7 @@ class ExpensesControllerTest extends TestCase
         }
 
         foreach ($should_not_be_seen_expenses as $expense) {
-            $this->notSeeJson([
+            $this->dontSeeJson([
                 'title' => $expense->title,
                 'value' => (float) $expense->value,
                 'location' => $expense->location,
