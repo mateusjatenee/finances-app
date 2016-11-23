@@ -11,4 +11,13 @@ trait ApiResponses
             'errors' => $errors,
         ], $statusCode);
     }
+
+    public function actionAuthorizationError()
+    {
+        return $this->error([
+            'authorization' => [
+                'You are not authorized to perform this action.',
+            ],
+        ], 403);
+    }
 }

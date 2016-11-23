@@ -99,6 +99,10 @@ class ExpensesController extends Controller
 
         $expense = $this->expense->find($id);
 
+        if ($user->cant('update', $expense)) {
+            return $this->actionAuthorizationError();
+        }
+
         $expense->update($request->all());
 
         return fractal()
@@ -115,7 +119,17 @@ class ExpensesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = $this->auth->user();
+
+        $expense = $this->expense->find($id);
+
+        if ($user->cant('update', $expense)) {
+            return $this->actionAuthorizationError();
+        }
+
+        $expense->delete();
+
+        return response()->json([], 204);
     }
 
     protected function validateRequest(array $fields)

@@ -160,4 +160,74 @@ class ExpensesControllerTest extends TestCase
             ]);
     }
 
+    /** @test */
+    public function it_does_not_authorize_an_user_to_edit_another_one_expense()
+    {
+        $user = $this->createUser();
+
+        $expense = $this->createExpense($user);
+
+        $date = Carbon::today()->addDays(20);
+
+        $user = $this->createUser();
+
+        $this
+            ->actingAs($user)
+            ->put(route('api::expenses.update', $expense->id), [
+                'title' => 'Foo',
+                'location' => 'Foobar',
+                'value' => 12,
+                'date' => $date->format('Y-m-d'),
+            ])
+            ->seeStatusCode(403)
+            ->seeJson([
+                'success' => false,
+                'errors' => [
+                    'authorization' => [
+                        'You are not authorized to perform this action.',
+                    ],
+                ],
+            ]);
+    }
+
+    /** @test */
+    public function it_deletes_an_expense()
+    {
+        $user = $this->createUser();
+
+        $expense = $this->createExpense($user);
+
+        $date = Carbon::today()->addDays(20);
+
+        $this
+            ->actingAs($user)
+            ->delete(route('api::expenses.destroy', $expense->id))
+            ->seeStatusCode(204);
+    }
+
+    /** @test */
+    public function it_does_not_authorize_an_user_to_delete_another_one_expense()
+    {
+        $user = $this->createUser();
+
+        $expense = $this->createExpense($user);
+
+        $date = Carbon::today()->addDays(20);
+
+        $user = $this->createUser();
+
+        $this
+            ->actingAs($user)
+            ->delete(route('api::expenses.destroy', $expense->id))
+            ->seeStatusCode(403)
+            ->seeJson([
+                'success' => false,
+                'errors' => [
+                    'authorization' => [
+                        'You are not authorized to perform this action.',
+                    ],
+                ],
+            ]);
+    }
+
 }
