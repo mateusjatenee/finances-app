@@ -39,6 +39,6 @@ class User extends Authenticatable
         $beggining = Carbon::today()->startOfMonth();
         $end = Carbon::today()->endOfMonth();
 
-        return $this->expenses->where('date', '<', $end)->where('date', '>', $beggining)->sum('value');
+        return $this->expenses()->where('date', '<', $end)->where('date', '>', $beggining)->sum('value');
     }
 }
