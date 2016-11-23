@@ -83,7 +83,18 @@ class ExpensesController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = $this->auth->user();
+
+        $expense = $this->expense->find($id);
+
+        if ($user->cant('see', $expense)) {
+            return $this->actionAuthorizationError();
+        }
+
+        return fractal()
+            ->item($expense)
+            ->transformWith(new ExpenseTransformer)
+            ->toArray();
     }
 
     /**

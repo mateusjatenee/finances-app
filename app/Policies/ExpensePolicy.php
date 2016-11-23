@@ -20,6 +20,11 @@ class ExpensePolicy
         //
     }
 
+    public function see(User $user, Expense $expense)
+    {
+        return $user->id == $expense->user_id;
+    }
+
     public function update(User $user, Expense $expense)
     {
         return $user->id == $expense->user_id;

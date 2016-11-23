@@ -230,4 +230,49 @@ class ExpensesControllerTest extends TestCase
             ]);
     }
 
+    /** @test */
+    public function it_finds_an_expense()
+    {
+        $user = $this->createUser();
+
+        $expense = $this->createExpense($user);
+
+        $this
+            ->actingAs($user)
+            ->get(route('api::expenses.show', $expense->id))
+            ->seeJson([
+                'data' => [
+                    'title' => $expense->title,
+                    'value' => (float) $expense->value,
+                    'location' => $expense->location,
+                    'date' => $expense->date->format('Y-m-d'),
+                    'readable_date' => $expense->date->diffForHumans(),
+                ],
+            ])
+            ->seeStatusCode(200);
+    }
+
+    /** @test */
+    public function it_does_not_authorize_an_user_to_access_another_users_expense()
+    {
+        $user = $this->createUser();
+
+        $expense = $this->createExpense($user);
+
+        $user = $this->createUser();
+
+        $this
+            ->actingAs($user)
+            ->get(route('api::expenses.show', $expense->id))
+            ->seeStatusCode(403)
+            ->seeJson([
+                'success' => false,
+                'errors' => [
+                    'authorization' => [
+                        'You are not authorized to perform this action.',
+                    ],
+                ],
+            ]);
+    }
+
 }
