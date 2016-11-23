@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\Handler;
+use App\Expense;
 use App\User;
 use \Exception;
 use \Mockery as m;
@@ -62,5 +63,10 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
     public function createUser()
     {
         return factory(User::class)->create();
+    }
+
+    public function createExpense(User $user)
+    {
+        return $user->expenses()->save(factory(Expense::class)->make());
     }
 }

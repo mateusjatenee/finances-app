@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Expense;
 use App\Http\Controllers\Controller;
 use App\Transformers\ExpenseTransformer;
 use Illuminate\Contracts\Auth\Factory as Auth;
@@ -91,7 +92,16 @@ class ExpensesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = $this->auth->user();
+
+        $expense = Expense::find($id);
+
+        $expense->update($request->all());
+
+        return fractal()
+            ->item($expense)
+            ->transformWith(new ExpenseTransformer)
+            ->toArray();
     }
 
     /**

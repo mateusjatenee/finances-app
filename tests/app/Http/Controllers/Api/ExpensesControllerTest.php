@@ -133,4 +133,31 @@ class ExpensesControllerTest extends TestCase
             ]);
     }
 
+    /** @test */
+    public function it_edits_an_expense()
+    {
+        $user = $this->createUser();
+
+        $expense = $this->createExpense($user);
+
+        $date = Carbon::today()->addDays(20);
+
+        $this
+            ->actingAs($user)
+            ->put(route('api::expenses.update', $expense->id), [
+                'title' => 'Foo',
+                'location' => 'Foobar',
+                'value' => 12,
+                'date' => $date->format('Y-m-d'),
+            ])
+            ->seeStatusCode(200)
+            ->seeJson([
+                'title' => 'Foo',
+                'location' => 'Foobar',
+                'value' => 12,
+                'date' => $date->format('Y-m-d'),
+                'readable_date' => $date->diffForHumans(),
+            ]);
+    }
+
 }
