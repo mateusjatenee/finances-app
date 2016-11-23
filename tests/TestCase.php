@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\Handler;
+use App\User;
 use \Exception;
 use \Mockery as m;
 
@@ -56,5 +57,10 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
         $this->app->instance($class, $mock);
 
         return $mock;
+    }
+
+    public function createUser()
+    {
+        return factory(User::class)->create();
     }
 }

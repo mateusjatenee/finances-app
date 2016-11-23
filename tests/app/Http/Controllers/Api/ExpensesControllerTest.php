@@ -1,7 +1,6 @@
 <?php
 
 use App\Expense;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
@@ -14,7 +13,7 @@ class ExpensesControllerTest extends TestCase
     {
         $this->disableExceptionHandling();
 
-        $user = factory(User::class)->create();
+        $user = $this->createUser();
 
         $expenses = factory(Expense::class, 2)->make();
 
@@ -41,7 +40,7 @@ class ExpensesControllerTest extends TestCase
     {
         $this->disableExceptionHandling();
 
-        $user = factory(User::class)->create();
+        $user = $this->createUser();
 
         $expenses = factory(Expense::class, 2)->make();
 
@@ -83,7 +82,55 @@ class ExpensesControllerTest extends TestCase
                 'readable_date' => $expense->date->diffForHumans(),
             ]);
         }
+    }
 
+    /** @test */
+    public function it_creates_an_expense()
+    {
+        $user = $this->createUser();
+
+        $date = Carbon::today();
+
+        $this
+            ->actingAs($user)
+            ->post(route('api::expenses.store'), [
+                'title' => 'Foo',
+                'value' => 35,
+                'location' => 'Home',
+                'date' => $date->format('Y-m-d'),
+            ])
+            ->seeJson([
+                'title' => 'Foo',
+                'value' => 35,
+                'location' => 'Home',
+                'date' => $date->format('Y-m-d'),
+                'readable_date' => $date->diffForHumans(),
+            ]);
+    }
+
+    /** @test */
+    public function it_returns_validation_errors_when_creating_an_expense()
+    {
+        $user = $this->createUser();
+
+        $date = Carbon::today();
+
+        $this
+            ->actingAs($user)
+            ->post(route('api::expenses.store'), [
+                'value' => 35,
+                'location' => 'Home',
+                'date' => $date->format('Y-m-d'),
+            ])
+            ->seeStatusCode(422)
+            ->seeJson([
+                'success' => false,
+                'errors' => [
+                    'title' => [
+                        'The title field is required.',
+                    ],
+                ],
+            ]);
     }
 
 }

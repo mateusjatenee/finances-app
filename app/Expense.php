@@ -7,4 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Expense extends Model
 {
     protected $dates = ['date'];
+
+    protected $fillable = [
+        'title', 'value', 'location', 'date',
+    ];
 }

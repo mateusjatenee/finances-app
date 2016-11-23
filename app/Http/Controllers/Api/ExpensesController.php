@@ -5,15 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Transformers\ExpenseTransformer;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use Illuminate\Contracts\Validation\Factory as Validator;
 use Illuminate\Http\Request;
 
 class ExpensesController extends Controller
 {
     protected $auth;
 
-    public function __construct(Auth $auth)
+    protected $validator;
+
+    public function __construct(Auth $auth, Validator $validator)
     {
         $this->auth = $auth;
+        $this->validator = $validator;
     }
 
     /**
@@ -44,16 +48,6 @@ class ExpensesController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -61,7 +55,20 @@ class ExpensesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = $this->auth->user();
+
+        $validator = $this->validateRequest($request->all());
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors(), 422);
+        }
+
+        $expense = $user->expenses()->create($request->all());
+
+        return fractal()
+            ->item($expense)
+            ->transformWith(new ExpenseTransformer)
+            ->toArray();
     }
 
     /**
@@ -71,17 +78,6 @@ class ExpensesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
     {
         //
     }
@@ -107,5 +103,15 @@ class ExpensesController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    protected function validateRequest(array $fields)
+    {
+        return $this->validator->make($fields, [
+            'title' => 'required|string',
+            'value' => 'required',
+            'location' => 'required|string',
+            'date' => 'required|date',
+        ]);
     }
 }
