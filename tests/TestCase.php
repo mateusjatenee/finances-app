@@ -1,5 +1,9 @@
 <?php
 
+use App\Exceptions\Handler;
+use \Exception;
+use \Mockery as m;
+
 abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
 {
     /**
@@ -16,10 +20,41 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
      */
     public function createApplication()
     {
-        $app = require __DIR__.'/../bootstrap/app.php';
+        $app = require __DIR__ . '/../bootstrap/app.php';
 
         $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
         return $app;
+    }
+
+    protected function disableExceptionHandling()
+    {
+        $this->app->instance(Handler::class, new class extends Handler
+        {
+            public function __construct()
+            {
+            }
+            public function report(Exception $e)
+            {
+            }
+            public function render($request, Exception $e)
+            {
+                throw $e;
+            }
+        });
+    }
+
+    public function tearDown()
+    {
+        m::close();
+    }
+
+    protected function mock($class)
+    {
+        $mock = m::mock($class);
+
+        $this->app->instance($class, $mock);
+
+        return $mock;
     }
 }
