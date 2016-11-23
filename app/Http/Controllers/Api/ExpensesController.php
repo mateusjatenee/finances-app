@@ -15,10 +15,13 @@ class ExpensesController extends Controller
 
     protected $validator;
 
-    public function __construct(Auth $auth, Validator $validator)
+    protected $expense;
+
+    public function __construct(Auth $auth, Validator $validator, Expense $expense)
     {
         $this->auth = $auth;
         $this->validator = $validator;
+        $this->expense = $expense;
     }
 
     /**
@@ -94,7 +97,7 @@ class ExpensesController extends Controller
     {
         $user = $this->auth->user();
 
-        $expense = Expense::find($id);
+        $expense = $this->expense->find($id);
 
         $expense->update($request->all());
 
