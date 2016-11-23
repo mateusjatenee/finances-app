@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Expense;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -31,5 +32,13 @@ class User extends Authenticatable
     public function expenses()
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function totalExpendedInMonth()
+    {
+        $beggining = Carbon::today()->startOfMonth();
+        $end = Carbon::today()->endOfMonth();
+
+        return $this->expenses->where('date', '<', $end)->where('date', '>', $beggining)->sum('value');
     }
 }
